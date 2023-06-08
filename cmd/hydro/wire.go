@@ -4,9 +4,9 @@
 package main
 
 import (
-	"HydroponicSystem/internal"
 	"context"
 	"github.com/google/wire"
+	"github.com/kara/hydro/internal"
 )
 
 var (
@@ -34,6 +34,7 @@ var (
 			new(internal.TimeLoader),
 			new(*internal.FileTimeLoader),
 		),
+		internal.NewFileTimeLoader,
 	)
 )
 

@@ -9,15 +9,3 @@ type SensorData struct {
 	MinWaterLevel bool      `json:"minWaterLevel"`
 	Timestamp     time.Time `json:"ts"`
 }
-
-type LightState struct {
-	IsUp bool `json:"isUp"`
-}
-
-type PhState struct {
-	IsUp bool `json:"isUp"`
-}
-
-type MqttError struct {
-	Err string `json:"err"`
-}

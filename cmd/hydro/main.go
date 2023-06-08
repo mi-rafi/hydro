@@ -1,9 +1,9 @@
 package main
 
 import (
-	"HydroponicSystem/internal"
 	"context"
 	"fmt"
+	"github.com/kara/hydro/internal"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"os"
@@ -34,7 +34,7 @@ func main() {
 	  _  _         _         
      | || |_  _ __| |_ _ ___ 
      | __ | || / _' | '_/ _ \
-     |_||_|\_, \__,_|_| \___/
+     |_||_|\_, \__,_|_| \___/ v0.0.1-beta
             |__/
 `)
 	log.Debug().Msg("logger initialized")
@@ -45,7 +45,7 @@ func main() {
 	var connCLoser func()
 	a, connCLoser, err := initWebApp(ctx, cfg)
 	if err != nil {
-		log.Err(err).Msg("can not init proc manager")
+		log.Err(err).Msg("can not init api")
 		return
 	}
 	closer.Bind(connCLoser)

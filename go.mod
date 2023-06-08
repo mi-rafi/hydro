@@ -1,4 +1,4 @@
-module HydroponicSystem
+module github.com/kara/hydro
 
 go 1.20
 
@@ -9,6 +9,7 @@ require (
 	github.com/google/wire v0.5.0
 	github.com/influxdata/influxdb-client-go/v2 v2.12.3
 	github.com/labstack/echo v3.3.10+incompatible
+	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.29.1
 	github.com/xlab/closer v1.1.0
 )
@@ -25,7 +26,6 @@ require (
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect

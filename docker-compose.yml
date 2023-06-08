@@ -9,31 +9,23 @@ services:
       - mqtt
     ports:
       - "9000:9000"
-    secrets:
-      - infuxdb-token
-      - mqtt-url
     environment:
-      - INFLUXDB_URL=http://influx:8086
-      - INFLUXDB_TOKEN={$INFLUXDB_TOKEN}
-      - INFLUXDB_ORG=kara
-      - INFLUXDB_BUCKET=hydro
-      - MQTT_BROKER=mqtt://mqtt:1883
-    networks:
-      - mynet
+      - INFLUX_URL=http://influxdb:8086
+      - INFLUX_TOKEN={$INFLUXDB_TOKEN}
+      - INFLUX_ORG=kara
+      - INFLUX_BUCKET=hydro
+      - MQTT_BROKER=tcp://mqtt:1883
+      - LOG_LEVEL=debug
     volumes:
       - ./data:/var/data
 
   mqtt:
-    image: eclipse-mosquitto:latest
+    image: emqx/nanomq:latest
     ports:
       - '1883:1883'
-      - '9001:9001'
-    networks:
-      - mynet
+      - '8883:8883'
     volumes:
-      - ./configs/mosquitto.conf:/mosquitto/config/mosquitto.conf
-      - ./data/mqtt:/mosquitto/data/
-      - ./logs/mqtt:/mosquitto/log
+      - ./configs/nanomq.conf:/etc/nanomq.conf
 
   influxdb:
     image: influxdb:latest
@@ -49,8 +41,3 @@ services:
       - DOCKER_INFLUXDB_INIT_BUCKET=hydro
     ports:
       - '8086:8086'
-    networks:
-      - mynet
-
-networks:
-  mynet:

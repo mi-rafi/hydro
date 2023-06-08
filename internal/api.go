@@ -49,7 +49,7 @@ type SearchRequest struct {
 }
 
 type ChangePhRequest struct {
-	IsUp bool `validate:"required" query:"up"`
+	IsUp bool `json:"up"`
 }
 
 type TimeLoadResponse struct {
@@ -77,6 +77,7 @@ func NewApp(ctx context.Context, appCfg AppConfig, hc HydroponicClient, hr Hydro
 	log.Debug().Interface("api app config", appCfg).Msg("starting initialize api application")
 
 	e := echo.New()
+	e.HideBanner = true
 
 	a := &API{
 		e:    e,
@@ -183,7 +184,7 @@ func (a *API) handleSearch(c echo.Context) error {
 	r, err := a.repo.GetLastData(ctx, request.Start, request.End)
 
 	if err != nil {
-		log.Err(err).Msg("saving error")
+		log.Err(err).Msg("can not get data from influxdb")
 		return echo.NewHTTPError(http.StatusInternalServerError)
 	}
 
@@ -198,37 +199,56 @@ func (a *API) handleLightState(c echo.Context) error {
 }
 
 func (a *API) handleAddSoil(c echo.Context) error {
-	a.cli.SendAddSoil()
+	log.Debug().Msg("handleAddSoil run")
+	if err := a.cli.SendAddSoil(); err != nil {
+		log.Error().Err(err).Msg("can not send add soil command")
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
 	return ok(c)
 }
 
 func (a *API) handleAddWater(c echo.Context) error {
-	a.cli.SendAddWater()
+	log.Debug().Msg("handleAddWater run")
+	if err := a.cli.SendAddWater(); err != nil {
+		log.Error().Err(err).Msg("can not send add water command")
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
 	return ok(c)
 }
 
 func (a *API) handleChangePh(c echo.Context) error {
-
-	request := &PhState{}
+	log.Debug().Msg("handleChangePh run")
+	request := &ChangePhRequest{}
 	if err := c.Bind(request); err != nil {
-		log.Debug().Err(err).Msg("handleSearch Bind err")
+		log.Debug().Err(err).Msg("handleChangePh Bind err")
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
 
 	if err := c.Validate(request); err != nil {
-		log.Debug().Err(err).Msg("handleSearch Validate err")
+		log.Debug().Err(err).Msg("handleChangePh Validate err")
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
+
 	if request.IsUp {
-		a.cli.SendUpPh()
+		if err := a.cli.SendUpPh(); err != nil {
+			log.Error().Err(err).Msg("can not send up ph command")
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
 	} else {
-		a.cli.SendDownPh()
+		if err := a.cli.SendDownPh(); err != nil {
+			log.Error().Err(err).Msg("can not send down ph command")
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
 	}
 	return ok(c)
 }
 
 func (a *API) handleChangeLight(c echo.Context) error {
-	a.cli.SendChangeLight()
+	log.Debug().Msg("handleChangeLight run")
+	if err := a.cli.SendChangeLight(); err != nil {
+		log.Error().Err(err).Msg("can not send change light command")
+		return echo.NewHTTPError(http.StatusInternalServerError)
+	}
 	return ok(c)
 }
 
@@ -243,8 +263,12 @@ func (a *API) Close() error {
 	return a.e.Close()
 }
 
+type SimpleMessage struct {
+	Message int `json:"message"`
+}
+
 func ok(c echo.Context) error {
-	return c.JSON(http.StatusOK, http.StatusText(http.StatusOK))
+	return c.JSON(http.StatusOK, &SimpleMessage{http.StatusOK})
 }
 
 func logMiddleware(next echo.HandlerFunc) echo.HandlerFunc {

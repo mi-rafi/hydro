@@ -15,7 +15,7 @@ type config struct {
 	LogFmt        string        `env:"LOG_FMT" envDefault:"console"`
 	StoreTimeFile string        `env:"ST_FILE" envDefault:"./tmp/time"`
 
-	MqttBroker     string `env:"MQTT_BROKER" envDefault:"mqtt://localhost:1883"`
+	MqttBroker     string `env:"MQTT_BROKER"`
 	InfluxDBURL    string `env:"INFLUX_URL" envDefault:"http://localhost:8086"`
 	InfluxDBToken  string `env:"INFLUX_TOKEN"`
 	InfluxDBOrg    string `env:"INFLUX_ORG"  envDefault:"kara"`
