@@ -1,0 +1,56 @@
+version: '3.9'
+services:
+  hydro:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - influxdb
+      - mqtt
+    ports:
+      - "9000:9000"
+    secrets:
+      - infuxdb-token
+      - mqtt-url
+    environment:
+      - INFLUXDB_URL=http://influx:8086
+      - INFLUXDB_TOKEN={$INFLUXDB_TOKEN}
+      - INFLUXDB_ORG=kara
+      - INFLUXDB_BUCKET=hydro
+      - MQTT_BROKER=mqtt://mqtt:1883
+    networks:
+      - mynet
+    volumes:
+      - ./data:/var/data
+
+  mqtt:
+    image: eclipse-mosquitto:latest
+    ports:
+      - '1883:1883'
+      - '9001:9001'
+    networks:
+      - mynet
+    volumes:
+      - ./configs/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./data/mqtt:/mosquitto/data/
+      - ./logs/mqtt:/mosquitto/log
+
+  influxdb:
+    image: influxdb:latest
+    volumes:
+      - ./data/influx:/var/lib/influxdb
+    environment:
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN={$INFLUXDB_TOKEN}
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=kara
+      - DOCKER_INFLUXDB_INIT_RETENTION=2w
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_BUCKET=hydro
+    ports:
+      - '8086:8086'
+    networks:
+      - mynet
+
+networks:
+  mynet:
