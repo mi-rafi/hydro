@@ -47,10 +47,6 @@ type LightState struct {
 	IsUp bool `json:"isUp"`
 }
 
-var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	log.Info().Msgf("Received message: %s from topic: %s", msg.Payload(), msg.Topic())
-}
-
 func NewMqttHydroponicClient(config *MqttConfig) (*MqttHydroponicClient, func(), error) {
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(config.MqttBroker)
@@ -58,7 +54,9 @@ func NewMqttHydroponicClient(config *MqttConfig) (*MqttHydroponicClient, func(),
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
 		log.Info().Msg("mqtt broker connected")
 	})
-	opts.SetDefaultPublishHandler(messagePubHandler)
+	opts.SetDefaultPublishHandler(func(client mqtt.Client, msg mqtt.Message) {
+		log.Info().Msgf("Received message: %s from topic: %s", msg.Payload(), msg.Topic())
+	})
 	mqttClient := mqtt.NewClient(opts)
 	if token := mqttClient.Connect(); token.Wait() && token.Error() != nil {
 		return nil, nil, errors.Wrap(token.Error(), "can not connect to mqtt")
