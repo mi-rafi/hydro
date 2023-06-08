@@ -157,7 +157,7 @@ func sendCommand[E Marshaller[any]](m *MqttHydroponicClient, command E) error {
 func handleTopicError(topic string, t mqtt.Token) {
 	t.Done()
 	if err := t.Error(); err != nil {
-		log.Error().Err(err).Str("topic", topic).Msg("can not p data to topic")
+		log.Error().Err(err).Str("topic", topic).Msg("can not send data to topic")
 	} else {
 		log.Debug().Msg("message sent")
 	}

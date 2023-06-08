@@ -14,7 +14,8 @@ type TimeLoader interface {
 }
 
 type FileTimeLoader struct {
-	f string
+	f  string
+	tc *time.Time
 }
 
 type FileTimeLoaderConfig struct {
@@ -46,16 +47,23 @@ func NewFileTimeLoader(cfg *FileTimeLoaderConfig) (*FileTimeLoader, func(), erro
 }
 
 func (f *FileTimeLoader) GetStartupTime() (time.Time, error) {
+	if f.tc != nil {
+		return *f.tc, nil
+	}
+	log.Debug().Msg("cache miss, load time data from file")
 	data, err := os.ReadFile(f.f)
 	if err != nil {
 		return time.Time{}, err
 	}
 	pt := time.Time{}
 	err = pt.UnmarshalBinary(data)
+	f.tc = &pt
 	return pt, err
 }
 
 func (f *FileTimeLoader) StoreStartupTime(t time.Time) error {
+	f.tc = &t
+	log.Debug().Msg("write time to file")
 	d, err := t.MarshalBinary()
 	if err != nil {
 		return err
